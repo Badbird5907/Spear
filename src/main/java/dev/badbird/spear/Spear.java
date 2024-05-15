@@ -7,6 +7,7 @@ import dev.badbird.spear.http.SpearHttpHandler;
 import dev.badbird.spear.http.RouteInfo;
 import dev.badbird.spear.provider.SpearProvider;
 import dev.badbird.spear.provider.impl.ContextProvider;
+import dev.badbird.spear.provider.impl.StringProvider;
 import dev.badbird.spear.result.ReturnHandler;
 import dev.badbird.spear.result.impl.StringReturnHandler;
 import io.javalin.Javalin;
@@ -43,6 +44,17 @@ public class Spear {
         return this;
     }
 
+    public Spear register(SpearHandler handler, SpearHandler... handlers) {
+        register(handler);
+        if (handlers == null) {
+            return this;
+        }
+        for (SpearHandler h : handlers) {
+            register(h);
+        }
+        return this;
+    }
+
     private void registerMethod(Method method, String prefix, SpearHandler handler) {
         if (method.isAnnotationPresent(Route.class)) {
             Route route = method.getAnnotation(Route.class);
@@ -73,6 +85,7 @@ public class Spear {
     public static Spear bind(Javalin app) {
         return new Spear(app)
                 .registerProvider(Context.class,  new ContextProvider())
+                .registerProvider(String.class, new StringProvider())
                 .registerReturnHandler(String.class, new StringReturnHandler());
 
     }

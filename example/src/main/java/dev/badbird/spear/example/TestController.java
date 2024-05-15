@@ -1,4 +1,4 @@
-package dev.badbird.spear.test;
+package dev.badbird.spear.example;
 
 import dev.badbird.spear.annotation.PathParam;
 import dev.badbird.spear.annotation.Route;
@@ -8,13 +8,13 @@ import io.javalin.http.Context;
 
 @Route("/test")
 public class TestController implements SpearHandler {
-    @Route(value = "/", method = HttpMethod.GET)
+    @Route(value = "/", method = HttpMethod.GET) // hit localhost:8080/test/
     public void test(Context ctx) {
         System.out.println("Hello, World!");
         ctx.result("HW1");
     }
-    @Route(value = "/{test}", method = HttpMethod.GET)
-    public String test2(Context ctx, @PathParam("test") String test) {
-        return test;
+    @Route(value = "/{pathparam}", method = HttpMethod.GET) // hit localhost:8080/test/paramnamehere
+    public String test2(Context ctx, @PathParam("pathparam") String param) {
+        return param;
     }
 }

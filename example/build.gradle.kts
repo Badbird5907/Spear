@@ -1,6 +1,5 @@
 plugins {
     id("java")
-    id("io.freefair.lombok") version "8.1.0"
 }
 
 group = "dev.badbird.spear"
@@ -11,5 +10,6 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.javalin:javalin:6.1.3")
+    implementation("io.javalin:javalin:6.1.3")
+    implementation(rootProject)
 }
