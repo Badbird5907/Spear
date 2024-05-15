@@ -15,6 +15,7 @@ repositories {
 dependencies {
     compileOnly("io.javalin:javalin:6.1.3")
     compileOnly("org.hibernate.validator:hibernate-validator:8.0.1.Final")
+    compileOnly("com.google.inject:guice:7.0.0")
     implementation("org.reflections:reflections:0.10.2") {
         exclude(group = "org.slf4j")
     }

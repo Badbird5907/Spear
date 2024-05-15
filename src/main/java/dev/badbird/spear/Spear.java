@@ -78,6 +78,7 @@ public class Spear {
         if (method.isAnnotationPresent(Route.class)) {
             Route route = method.getAnnotation(Route.class);
             String path = prefix + "/" + route.value().replace("//", "/"); // clean up path
+            System.out.println("Registering " + path);
             RouteInfo routeInfo = new RouteInfo(route, path, handler, method);
             Handler httpHandler = new SpearHttpHandler(routeInfo, this);
             for (HttpMethod httpMethod : route.method()) {
