@@ -17,6 +17,7 @@ dependencies {
     implementation("org.reflections:reflections:0.10.2") {
         exclude(group = "org.slf4j")
     }
+    implementation("com.google.code.gson:gson:2.10.1")
 }
 
 java {

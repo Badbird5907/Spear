@@ -1,5 +1,6 @@
 package dev.badbird.spear;
 
+import com.google.gson.Gson;
 import dev.badbird.spear.annotation.Route;
 import dev.badbird.spear.http.HttpMethod;
 import dev.badbird.spear.http.RouteInfo;
@@ -23,6 +24,7 @@ import java.util.Map;
 @Data
 public class Spear {
     private final Javalin app;
+    private Gson gson = new Gson();
     private Map<Class<?>, SpearProvider<?>> providers = new HashMap<>();
     private Map<Class<?>, ReturnHandler<?>> returnHandlers = new HashMap<>();
 
@@ -64,6 +66,11 @@ public class Spear {
                 e.printStackTrace();
             }
         }
+        return this;
+    }
+
+    public Spear setGson(Gson gson) {
+        this.gson = gson;
         return this;
     }
 
