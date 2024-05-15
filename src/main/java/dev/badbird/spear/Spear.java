@@ -2,9 +2,9 @@ package dev.badbird.spear;
 
 import dev.badbird.spear.annotation.Route;
 import dev.badbird.spear.http.HttpMethod;
+import dev.badbird.spear.http.RouteInfo;
 import dev.badbird.spear.http.SpearHandler;
 import dev.badbird.spear.http.SpearHttpHandler;
-import dev.badbird.spear.http.RouteInfo;
 import dev.badbird.spear.provider.SpearProvider;
 import dev.badbird.spear.provider.impl.ContextProvider;
 import dev.badbird.spear.provider.impl.StringProvider;
@@ -14,6 +14,7 @@ import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import lombok.Data;
+import org.reflections.Reflections;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -55,6 +56,17 @@ public class Spear {
         return this;
     }
 
+    public Spear registerPackage(String packageName) {
+        for (Class<? extends SpearHandler> aClass : new Reflections(packageName).getSubTypesOf(SpearHandler.class)) {
+            try {
+                register(aClass.newInstance());
+            } catch (InstantiationException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        return this;
+    }
+
     private void registerMethod(Method method, String prefix, SpearHandler handler) {
         if (method.isAnnotationPresent(Route.class)) {
             Route route = method.getAnnotation(Route.class);
@@ -84,7 +96,7 @@ public class Spear {
 
     public static Spear bind(Javalin app) {
         return new Spear(app)
-                .registerProvider(Context.class,  new ContextProvider())
+                .registerProvider(Context.class, new ContextProvider())
                 .registerProvider(String.class, new StringProvider())
                 .registerReturnHandler(String.class, new StringReturnHandler());
 
