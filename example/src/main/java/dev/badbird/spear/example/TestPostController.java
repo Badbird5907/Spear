@@ -5,6 +5,8 @@ import dev.badbird.spear.annotation.Route;
 import dev.badbird.spear.http.HttpMethod;
 import dev.badbird.spear.http.SpearHandler;
 import io.javalin.http.Context;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 
 public class TestPostController implements SpearHandler {
     @Route(value = "/postme", method = HttpMethod.POST)
@@ -16,7 +18,9 @@ public class TestPostController implements SpearHandler {
     }
 
     public static class TestObject {
+        @NotBlank
         public String aString;
+        @Min(10)
         public int anInt;
 
         @Override

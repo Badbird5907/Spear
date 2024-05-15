@@ -1,7 +1,10 @@
 package dev.badbird.spear.http;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import dev.badbird.spear.Spear;
 import dev.badbird.spear.result.ReturnHandler;
+import dev.badbird.spear.validator.ValidatorException;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +32,27 @@ public class SpearHttpHandler implements Handler {
                 context.json(result);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            if (e instanceof IllegalArgumentException) {
+                if (e instanceof ValidatorException vE) {
+                    JsonObject jsonObject = new JsonObject();
+                    jsonObject.addProperty("error", true);
+                    jsonObject.addProperty("message", vE.getMessage());
+                    JsonArray jsonArray = new JsonArray();
+                    for (String message : vE.getMessages()) {
+                        jsonArray.add(message);
+                    }
+                    jsonObject.add("validationMessages", jsonArray);
+                    jsonObject.addProperty("status", 400);
+                    context.status(400).result(spear.getGson().toJson(jsonObject)).contentType("application/json");
+                } else {
+                    context.status(400);
+                    context.result(e.getMessage());
+                }
+            } else {
+                context.status(500);
+                context.result("Internal Server Error");
+                e.printStackTrace();
+            }
         }
     }
 }

@@ -4,6 +4,7 @@ import dev.badbird.spear.Spear;
 import dev.badbird.spear.annotation.RequestBody;
 import dev.badbird.spear.annotation.Route;
 import dev.badbird.spear.provider.SpearProvider;
+import dev.badbird.spear.validator.impl.JakartaValidator;
 import io.javalin.http.Context;
 import lombok.Data;
 
@@ -26,6 +27,7 @@ public class RouteInfo {
             if (spearProvider == null) {
                 if (parameter.isAnnotationPresent(RequestBody.class)) {
                     Object o = spear.getGson().fromJson(ctx.body(), parameter.getType());
+                    JakartaValidator.INSTANCE.validate(o);
                     parameters.add(o);
                 } else {
                     throw new RuntimeException("No provider found for " + parameter.getType().getName());
