@@ -2,6 +2,7 @@ plugins {
     `java-library`
     `maven-publish`
     id("io.freefair.lombok") version "8.1.0"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "dev.badbird.spear"
@@ -13,13 +14,21 @@ repositories {
 
 dependencies {
     compileOnly("io.javalin:javalin:6.1.3")
+    implementation("org.reflections:reflections:0.10.2") {
+        exclude(group = "org.slf4j")
+    }
 }
 
 java {
     withJavadocJar()
     withSourcesJar()
 }
-
+tasks.shadowJar {
+    archiveClassifier.set("");
+}
+tasks.build {
+    dependsOn("shadowJar")
+}
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
