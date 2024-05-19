@@ -10,6 +10,7 @@ import io.javalin.http.Handler;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -31,28 +32,19 @@ public class SpearHttpHandler implements Handler {
             } else {
                 context.json(result);
             }
-        } catch (Exception e) {
-            if (e instanceof IllegalArgumentException) {
-                if (e instanceof ValidatorException vE) {
-                    JsonObject jsonObject = new JsonObject();
-                    jsonObject.addProperty("error", true);
-                    jsonObject.addProperty("message", vE.getMessage());
-                    JsonArray jsonArray = new JsonArray();
-                    for (String message : vE.getMessages()) {
-                        jsonArray.add(message);
-                    }
-                    jsonObject.add("validationMessages", jsonArray);
-                    jsonObject.addProperty("status", 400);
-                    context.status(400).result(spear.getGson().toJson(jsonObject)).contentType("application/json");
-                } else {
-                    context.status(400);
-                    context.result(e.getMessage());
-                }
-            } else {
-                context.status(500);
-                context.result("Internal Server Error");
-                e.printStackTrace();
+        } catch (ValidatorException vE) {
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("error", true);
+            jsonObject.addProperty("message", vE.getMessage());
+            JsonArray jsonArray = new JsonArray();
+            for (String message : vE.getMessages()) {
+                jsonArray.add(message);
             }
+            jsonObject.add("validationMessages", jsonArray);
+            jsonObject.addProperty("status", 400);
+            context.status(400).result(spear.getGson().toJson(jsonObject)).contentType("application/json");
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 }
