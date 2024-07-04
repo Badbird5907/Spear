@@ -28,3 +28,6 @@ public class TestController implements SpearHandler {
 ```
 
 See the [example](https://github.com/Badbird5907/Spear/tree/master/example) module for more examples.
+
+## Sponsors
+This project is proudly brought to you by *jank*
