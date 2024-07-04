@@ -36,7 +36,6 @@ subprojects {
     publishing {
         publications {
             create<MavenPublication>("mavenJava") {
-                artifactId = "spear"
                 from(components["java"])
                 versionMapping {
                     usage("java-api") {
