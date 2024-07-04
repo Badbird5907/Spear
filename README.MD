@@ -27,4 +27,4 @@ public class TestController implements SpearHandler {
 }
 ```
 
-See the [example](https://github.com/Badbird5907/Spear/blob/master/example/src/main/java/dev/badbird/spear/example/SpearExample.java) module for more examples.
+See the [example](https://github.com/Badbird5907/Spear/tree/master/example) module for more examples.
