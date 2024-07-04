@@ -15,6 +15,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -121,33 +122,39 @@ public interface APIRequest<T> {
     @SneakyThrows
     default CompletableFuture<T> send() {
         CompletableFuture<T> future = new CompletableFuture<>();
-        String endpoint = getClass().getAnnotation(Route.class).value();
-        if (endpoint.startsWith("/")) endpoint = endpoint.substring(1);
-        String notSoFinalEndpoint = endpoint;
-
-        Map<String, Object> variables = new HashMap<>();
-        List<String> pathVariables = TemplateStringParser.parse(notSoFinalEndpoint);
-        for (String pathVariable : pathVariables) {
-            String[] split = pathVariable.split(".");
-            Field field = getClass().getDeclaredField(split[0]);
-            field.setAccessible(true);
-            Object o = field.get(this);
-            // traverse the object
-            for (int i = 1; i < split.length; i++) {
-                field = o.getClass().getDeclaredField(split[i]);
-                field.setAccessible(true);
-                o = field.get(o);
-            }
-            variables.put(pathVariable, o);
-        }
-
-        String finalEndpoint = TemplateStringParser.mapFields(variables, notSoFinalEndpoint); // GOD IS DEAD AND WE KILLED HIM
-
         try {
+            String endpoint = getClass().getAnnotation(Route.class).value();
+            if (endpoint.startsWith("/")) endpoint = endpoint.substring(1);
+            String notSoFinalEndpoint = endpoint;
+
+            Map<String, Object> variables = new HashMap<>();
+            List<String> pathVariables = TemplateStringParser.parse(notSoFinalEndpoint);
+            for (String pathVariable : pathVariables) {
+                if (pathVariable.contains(".")) {
+                    String[] split = pathVariable.split(".");
+                    Field field = getClass().getDeclaredField(split[0]);
+                    field.setAccessible(true);
+                    Object o = field.get(this);
+                    // traverse the object
+                    for (int i = 1; i < split.length; i++) {
+                        field = o.getClass().getDeclaredField(split[i]);
+                        field.setAccessible(true);
+                        o = field.get(o);
+                    }
+                    variables.put(pathVariable, o);
+                } else {
+                    String varName = pathVariable.substring(1, pathVariable.length() - 1);
+                    Field field = getClass().getDeclaredField(varName);
+                    field.setAccessible(true);
+                    variables.put(varName, field.get(this));
+                }
+            }
+
+            String finalEndpoint = TemplateStringParser.mapFields(variables, notSoFinalEndpoint); // GOD IS DEAD AND WE KILLED HIM
             Request.Builder builder = new Request.Builder().url(SpearCommons.get().getBaseUrl() + finalEndpoint);
             Request.Builder a = addData(builder);
             if (a != null) builder = a;
-            Request.Builder finalBuilder = builder;
+            Request.Builder finalBuilder = SpearCommons.get().getRequestMutator().apply(builder);
             CLIENT.newCall(finalBuilder.build()).enqueue(new Callback() {
                 @Override
                 public void onFailure(@NotNull Call call, @NotNull IOException e) {
@@ -167,6 +174,7 @@ public interface APIRequest<T> {
                 }
             });
         } catch (Exception e) {
+            e.printStackTrace();
             future.completeExceptionally(e);
         }
         return future;
