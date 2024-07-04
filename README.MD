@@ -1,9 +1,11 @@
 # Spear
-Spear is an annotation based wrapper around Javalin that allows you to effortlessly create and manage a number of routes.
+Spear is an annotation-based wrapper around Javalin that allows you to create and manage a number of routes effortlessly.
+
+Spear also provides an optional end-to-end typesafe API client and server.
 
 Spear is inspired by the Spring framework, and aims to provide an easy way to create and manage routes in a Javalin application. 
 
-Example Usage:
+Example "route-only" Usage:
 ```java
 public class TestMain {
     public static void main(String[] args) {
@@ -23,6 +25,38 @@ public class TestController implements SpearHandler {
     @Route(value = "/{pathparam}", method = HttpMethod.GET) // hit localhost:8080/test/paramnamehere
     public String test2(Context ctx, @PathParam("pathparam") String param) {
         return param;
+    }
+}
+```
+
+Example Client & Server:
+```java
+public class ServerMain {
+    public static void main(String[] args) {
+        Spear.bind(Javalin.create())
+                .register(new TestHandler())
+                .start(8080);
+    }
+}
+
+
+public record TestResponse(String response) {}
+
+@Route("/test")
+public record TestRequest(String str) implements APIRequest<TestResponse> {}
+
+public class TestHandler implements APIHandler<ResponseType, TestRequest> {
+    @Override
+    public ResponseType handle(TestAPIRequest request, Context ctx) {
+        System.out.println("Received request: " + request.str());
+        return new ResponseType("Hello world!");
+    }
+}
+
+public class ClientMain {
+    public static void main(String[] args) {
+        new SpearCommons(new Gson(), "http://localhost:8089", builder -> builder);
+        new TestRequest("Hi").send().thenAccept(System.out::println);
     }
 }
 ```
