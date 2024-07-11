@@ -45,11 +45,11 @@ public record TestResponse(String response) {}
 @Route("/test")
 public record TestRequest(String str) implements APIRequest<TestResponse> {}
 
-public class TestHandler implements APIHandler<ResponseType, TestRequest> {
+public class TestHandler implements APIHandler<TestResponse, TestRequest> {
     @Override
-    public ResponseType handle(TestAPIRequest request, Context ctx) {
+    public TestResponse handle(TestAPIRequest request, Context ctx) {
         System.out.println("Received request: " + request.str());
-        return new ResponseType("Hello world!");
+        return new TestResponse("Hello world!");
     }
 }
 
